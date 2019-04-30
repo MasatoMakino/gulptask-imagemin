@@ -5,13 +5,20 @@ const imagemin = require("gulp-imagemin");
 const newer = require("gulp-newer");
 const imageResize = require("gulp-image-resize");
 const mozjpeg = require("imagemin-mozjpeg");
+const path = require("path");
 
-const srcDir = "./src/";
+const imageDir = "./src/img/";
 const distDir = "./dist/";
+
+const baseName = path.basename(imageDir);
 const imgExtension = "+(jpg|jpeg|png|gif|svg)";
-const srcImages = srcDir + "img/**/*." + imgExtension;
+const srcImages = path.resolve(imageDir, "**/*." + imgExtension);
+
 const imgExtension_responsive = "+(jpg|jpeg|png|gif)";
-const srcResponsiveImages = srcDir + "img/**/*." + imgExtension_responsive;
+const srcResponsiveImages = path.resolve(
+  imageDir,
+  "**/*." + imgExtension_responsive
+);
 
 const bufferImgPath = "./.imgBuffer/";
 
@@ -32,12 +39,12 @@ const minimize = (srcImages, distImgPath, resizeOptions) => {
 };
 
 const imagemin_full = () => {
-  const distImgPath = bufferImgPath + "img";
+  const distImgPath = path.resolve(bufferImgPath, baseName);
   return minimize(srcImages, distImgPath);
 };
 
 const imagemin_responsive = () => {
-  const distImgPath = bufferImgPath + "img_xs";
+  const distImgPath = path.resolve(bufferImgPath, baseName + "_xs");
   const resizeOptions = {
     percentage: 50,
     imageMagick: true
