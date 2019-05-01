@@ -2,7 +2,7 @@
   "name": "gulptask-imagemin",
   "version": "0.1.0",
   "description": "imagemin task for gulp.js",
-  "main": "./gulpfile.js",
+  "main": "./index.js",
   "repository": "https://MasatoMakino@github.com/MasatoMakino/gulptask-imagemin.git",
   "author": "MasatoMakino <unagiinu.g@gmail.com>",
   "license": "MIT",
