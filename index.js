@@ -1,9 +1,10 @@
 "use strict";
 
 const { src, dest, series, parallel } = require("gulp");
+const through2 = require("through2");
 const imagemin = require("gulp-imagemin");
 const newer = require("gulp-newer");
-const imageResize = require("gulp-image-resize");
+const sharp = require("sharp");
 const mozjpeg = require("imagemin-mozjpeg");
 const path = require("path");
 
@@ -19,7 +20,6 @@ const imageminOption = [
 ];
 
 module.exports = (imageDir, distDir) => {
-
   const baseName = path.basename(imageDir);
   const srcImages = path.resolve(imageDir, "**/*." + imgExtension);
   const srcResponsiveImages = path.resolve(
@@ -29,9 +29,26 @@ module.exports = (imageDir, distDir) => {
 
   const minimize = (srcImages, distImgPath, resizeOptions) => {
     const hasResizeOption = resizeOptions !== undefined;
+
+    const resize = (file, _, cb) => {
+      const image = sharp(file.contents);
+      image
+        .metadata()
+        .then(metadata => {
+          const w = Math.round(
+            (metadata.width * resizeOptions.percentage) / 100
+          );
+          return image.resize(w).toBuffer();
+        })
+        .then(data => {
+          file.contents = data;
+          cb(null, file);
+        });
+    };
+
     let stream = src(srcImages).pipe(newer(distImgPath));
     if (hasResizeOption) {
-      stream = stream.pipe(imageResize(resizeOptions));
+      stream = stream.pipe(through2.obj(resize));
     }
     return stream.pipe(imagemin(imageminOption)).pipe(dest(distImgPath));
   };
@@ -44,8 +61,7 @@ module.exports = (imageDir, distDir) => {
   const imagemin_responsive = () => {
     const distImgPath = path.resolve(bufferImgPath, baseName + "_xs");
     const resizeOptions = {
-      percentage: 50,
-      imageMagick: true
+      percentage: 50
     };
     return minimize(srcResponsiveImages, distImgPath, resizeOptions);
   };
