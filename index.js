@@ -19,7 +19,73 @@ const imageminOption = [
   imagemin.svgo()
 ];
 
-module.exports = (imageDir, distDir) => {
+/**
+ * @typedef Option
+ * @type {Object}
+ * @property {Array.<ScaleOption>} [scaleOptions]
+ *
+ * 画像圧縮に関するオプション。
+ */
+
+/**
+ * @typedef ScaleOption
+ * @type {Object}
+ * @property {string} postfix e.g. "_xs" -> "./[imageDir]_xs/img.jpg"
+ * @property {number} scale e.g. 1.0, 0.5 ....
+ *
+ * 画像のスケーリングに関するオプション。
+ */
+
+const initOption = option => {
+  if (option == null) {
+    option = {};
+  }
+  if (option.scaleOptions == null) {
+    option.scaleOptions = [
+      {
+        postfix: "",
+        scale: 1.0
+      },
+      {
+        postfix: "_xs",
+        scale: 0.5
+      }
+    ];
+  }
+  return option;
+};
+
+const minimize = (srcImages, distImgPath, resizeOptions) => {
+  const hasResizeOption = resizeOptions !== undefined;
+  const resize = (file, _, cb) => {
+    const image = sharp(file.contents);
+    image
+      .metadata()
+      .then(metadata => {
+        const w = Math.ceil(metadata.width * resizeOptions.scale);
+        return image.resize(w).toBuffer();
+      })
+      .then(data => {
+        file.contents = data;
+        cb(null, file);
+      });
+  };
+
+  let stream = src(srcImages).pipe(newer(distImgPath));
+  if (hasResizeOption) {
+    stream = stream.pipe(through2.obj(resize));
+  }
+  return stream.pipe(imagemin(imageminOption)).pipe(dest(distImgPath));
+};
+
+/**
+ * 画像を複数のスケールにリサイズし、最適化するタスク
+ * @param {string} imageDir
+ * @param {string} distDir
+ * @param {Option} [option]
+ * @return {Function} gulpタスク
+ */
+module.exports = (imageDir, distDir, option) => {
   const baseName = path.basename(imageDir);
   const srcImages = path.resolve(imageDir, "**/*." + imgExtension);
   const srcResponsiveImages = path.resolve(
@@ -27,44 +93,38 @@ module.exports = (imageDir, distDir) => {
     "**/*." + imgExtension_responsive
   );
 
-  const minimize = (srcImages, distImgPath, resizeOptions) => {
-    const hasResizeOption = resizeOptions !== undefined;
+  option = initOption(option);
 
-    const resize = (file, _, cb) => {
-      const image = sharp(file.contents);
-      image
-        .metadata()
-        .then(metadata => {
-          const w = Math.round(
-            (metadata.width * resizeOptions.percentage) / 100
-          );
-          return image.resize(w).toBuffer();
-        })
-        .then(data => {
-          file.contents = data;
-          cb(null, file);
-        });
-    };
+  /**
+   * オプションを参照する画像圧縮タスクを取得する。
+   * @param scaleOption
+   * @return {function(): *}
+   */
+  const getImageTask = scaleOption => {
+    const distImgPath = path.resolve(
+      bufferImgPath,
+      baseName + scaleOption.postfix
+    );
 
-    let stream = src(srcImages).pipe(newer(distImgPath));
-    if (hasResizeOption) {
-      stream = stream.pipe(through2.obj(resize));
+    let imgGlob = srcImages;
+    let resizeOption;
+    if (scaleOption.scale !== 1.0) {
+      imgGlob = srcResponsiveImages;
+      resizeOption = {
+        scale: scaleOption.scale
+      };
     }
-    return stream.pipe(imagemin(imageminOption)).pipe(dest(distImgPath));
-  };
-
-  const imagemin_full = () => {
-    const distImgPath = path.resolve(bufferImgPath, baseName);
-    return minimize(srcImages, distImgPath);
-  };
-
-  const imagemin_responsive = () => {
-    const distImgPath = path.resolve(bufferImgPath, baseName + "_xs");
-    const resizeOptions = {
-      percentage: 50
+    // タスクを実行する関数を返す。
+    // 無名関数でラップしないとタスク定義時点で即時実行されてしまうため。
+    return () => {
+      return minimize(imgGlob, distImgPath, resizeOption);
     };
-    return minimize(srcResponsiveImages, distImgPath, resizeOptions);
   };
+
+  const tasks = [];
+  option.scaleOptions.forEach(scaleOption => {
+    tasks.push(getImageTask(scaleOption));
+  });
 
   const copy = () => {
     return src([bufferImgPath + "**/*"], { base: bufferImgPath }).pipe(
@@ -72,5 +132,5 @@ module.exports = (imageDir, distDir) => {
     );
   };
 
-  return series(parallel(imagemin_full, imagemin_responsive), copy);
+  return series(parallel.apply(null, tasks), copy);
 };
