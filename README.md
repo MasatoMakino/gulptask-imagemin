@@ -24,7 +24,7 @@ $ npm install https://github.com/MasatoMakino/gulptask-imagemin.git -D
 gulpfile.js の中で
 
 ```gulpfile.js
-const images = require("gulptask-imagemin")("画像ソースのディレクトリ", "出力先ディレクトリ", {オプション / 省略可});
+const images = require("gulptask-imagemin").get("画像ソースのディレクトリ", "出力先ディレクトリ", {オプション / 省略可});
 ```
 
 のように宣言してタスクモジュールをインポートします。
@@ -47,13 +47,13 @@ const images = require("gulptask-imagemin")("画像ソースのディレクト�
       postfix: "_xs",
       scale: 0.5
     }
-  ]
+  ];
 }
 ```
 
-* ``option.scaleOptions`` スケーリングに関する設定が格納された配列です。
-* ``ScaleOption.postfix`` 拡大縮小された画像を格納するディレクトリ名の接尾名です。たとえばオリジナルの画像ディレクトリが``img``、postfixが``_xs``なら、出力ディレクトリは``img_xs``になります。
-* ``ScaleOption.scale`` 拡大縮小率です。1.0ならオリジナルと同じサイズが、0.5なら一辺が半分のサイズの画像が出力されます。
+- `option.scaleOptions` スケーリングに関する設定が格納された配列です。
+- `ScaleOption.postfix` 拡大縮小された画像を格納するディレクトリ名の接尾名です。たとえばオリジナルの画像ディレクトリが`img`、postfix が`_xs`なら、出力ディレクトリは`img_xs`になります。
+- `ScaleOption.scale` 拡大縮小率です。1.0 ならオリジナルと同じサイズが、0.5 なら一辺が半分のサイズの画像が出力されます。
 
 ## License
 

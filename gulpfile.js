@@ -1,12 +1,12 @@
 "use strict";
 
-exports.images = require("./index.js")("./src/img", "./dist");
+exports.images = require("./bin").get("./srcImg/img", "./dist");
 
-exports.imagesNoScale = require("./index.js")("./src/img", "./dist", {
+exports.imagesNoScale = require("./bin").get("./srcImg/img", "./dist", {
   scaleOptions: [{ postfix: "", scale: 1.0 }]
 });
 
-exports.imagesCustomScale = require("./index.js")("./src/img", "./dist", {
+exports.imagesCustomScale = require("./bin").get("./srcImg/img", "./dist", {
   scaleOptions: [
     { postfix: "", scale: 1.0 },
     { postfix: "_75", scale: 0.75 },
