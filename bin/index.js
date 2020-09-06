@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.get = exports.bufferImgPath = void 0;
 const gulp_1 = require("gulp");
 const Option_1 = require("./Option");
 const MinimizeTask_1 = require("./MinimizeTask");
