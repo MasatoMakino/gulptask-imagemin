@@ -5,17 +5,25 @@ import { getImageTask } from "./MinimizeTask";
 export const bufferImgPath = "./.imgBuffer/";
 
 /**
- * 画像を複数のスケールにリサイズし、最適化するタスク
- * @param {string} imageDir
- * @param {string} distDir
- * @param {Option} [option]
- * @return {Function} gulpタスク
+ * @deprecated Use generateTask
+ * @param imageDir
+ * @param distDir
+ * @param option
  */
 export function get(imageDir, distDir, option) {
+  return generateTask(imageDir, distDir, option);
+}
+/**
+ * 画像を複数のスケールにリサイズし、最適化するタスクを生成する
+ * @param imageDir
+ * @param distDir
+ * @param option
+ */
+export function generateTask(imageDir, distDir, option) {
   option = initOption(option);
 
   const tasks = [];
-  option.scaleOptions.forEach(scaleOption => {
+  option.scaleOptions.forEach((scaleOption) => {
     tasks.push(getImageTask(imageDir, scaleOption));
   });
 

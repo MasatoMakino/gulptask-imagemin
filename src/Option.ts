@@ -20,20 +20,17 @@ export interface ScaleOption {
 }
 
 export function initOption(option: Option): Option {
-  if (option == null) {
-    option = {};
-  }
-  if (option.scaleOptions == null) {
-    option.scaleOptions = [
-      {
-        postfix: "",
-        scale: 1.0
-      },
-      {
-        postfix: "_xs",
-        scale: 0.5
-      }
-    ];
-  }
+  option ??= {};
+  option.scaleOptions ??= [
+    {
+      postfix: "",
+      scale: 1.0,
+    },
+    {
+      postfix: "_xs",
+      scale: 0.5,
+    },
+  ];
+
   return option;
 }
