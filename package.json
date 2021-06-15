@@ -7,6 +7,9 @@
   "repository": "https://MasatoMakino@github.com/MasatoMakino/gulptask-imagemin.git",
   "author": "MasatoMakino <unagiinu.g@gmail.com>",
   "license": "MIT",
+  "files": [
+    "bin"
+  ],
   "dependencies": {
     "gulp": "^4.0.2",
     "gulp-imagemin": "^7.1.0",
