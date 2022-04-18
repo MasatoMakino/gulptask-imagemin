@@ -1,67 +1,70 @@
-import { src, dest } from "gulp";
-
-import through2 from "through2";
-import imagemin from "gulp-imagemin";
-import newer from "gulp-newer";
-import sharp from "sharp";
-import mozjpeg from "imagemin-mozjpeg";
+import Sharp from "sharp";
 import path from "path";
+import fs from "fs";
+import glob from "glob";
 
 import { ScaleOption } from "./Option";
 import { bufferImgPath } from "./index";
 const imgExtension = "+(jpg|jpeg|png|gif|svg)";
 const imgExtension_responsive = "+(jpg|jpeg|png|gif)";
 
-const imageminOption = [
-  imagemin.gifsicle(),
-  mozjpeg(),
-  imagemin.optipng(),
-  imagemin.svgo()
-];
-
 /**
  * SharpライブラリをラップしたStreamを作成する。
- * @param srcImageGlob
- * @param distImgPath
- * @param resizeOptions
  */
-export function getSharpStream(
+export async function getSharpStream(
+  imageDir: string,
   srcImageGlob: string,
   distImgPath: string,
-  resizeOptions?
-): WritableStream {
-  const hasResizeOption = resizeOptions !== undefined;
-  const resize = (file, _, cb) => {
-    const image = sharp(file.contents);
-    image
-      .metadata()
-      .then(metadata => {
-        const w = Math.ceil(metadata.width * resizeOptions.scale);
-        return image.resize(w).toBuffer();
-      })
-      .then(data => {
-        file.contents = data;
-        cb(null, file);
-      });
-  };
-
-  let stream = src(srcImageGlob).pipe(newer(distImgPath));
-  if (hasResizeOption) {
-    stream = stream.pipe(through2.obj(resize));
-  }
-  return stream.pipe(imagemin(imageminOption)).pipe(dest(distImgPath));
+  resizeOption?: ScaleOption
+) {
+  const files = glob.sync(srcImageGlob, { cwd: imageDir });
+  return optimize(files, imageDir, distImgPath, resizeOption);
 }
 
-export function getImageTask(
-  imageDir: string,
-  scaleOption: ScaleOption
-): Function {
+const optimize = async (
+  files: string[],
+  imageSrcDir: string,
+  distImgPath: string,
+  resizeOption?: ScaleOption
+) => {
+  const promises = [];
+  files.forEach((file) => {
+    const promise = async () => {
+      const outputPath = path.resolve(distImgPath, file);
+      const dir = path.dirname(outputPath);
+      await fs.promises.mkdir(dir, { recursive: true });
+      const sharpObj = await new Sharp(path.resolve(imageSrcDir, file));
+
+      const metadata = await sharpObj.metadata();
+      if (resizeOption) {
+        await sharpObj.resize(Math.ceil(metadata.width * resizeOption.scale));
+      }
+      if (metadata.format === "jpeg") {
+        await sharpObj.toFormat(metadata.format, {
+          mozjpeg: true,
+          quality: 75,
+        });
+      }
+
+      if (metadata.format === "png") {
+        await sharpObj.toFormat(metadata.format, {
+          compressionLevel: 8,
+          palette: true,
+        });
+      }
+      await sharpObj.toFile(outputPath);
+    };
+
+    promises.push(promise());
+  });
+
+  return Promise.all(promises);
+};
+
+export async function getImageTask(imageDir: string, scaleOption: ScaleOption) {
   const baseName = path.basename(imageDir);
-  const srcImages = path.resolve(imageDir, "**/*." + imgExtension);
-  const srcResponsiveImages = path.resolve(
-    imageDir,
-    "**/*." + imgExtension_responsive
-  );
+  const srcImages = path.join("**/*." + imgExtension);
+  const srcResponsiveImages = path.join("**/*." + imgExtension_responsive);
 
   const distImgPath = path.resolve(
     bufferImgPath,
@@ -73,13 +76,9 @@ export function getImageTask(
   if (scaleOption.scale !== 1.0) {
     imgGlob = srcResponsiveImages;
     resizeOption = {
-      scale: scaleOption.scale
+      scale: scaleOption.scale,
     };
   }
 
-  // タスクを実行する関数を返す。
-  // 無名関数でラップしないとタスク定義時点で即時実行されてしまうため。
-  return () => {
-    return getSharpStream(imgGlob, distImgPath, resizeOption);
-  };
+  return getSharpStream(imageDir, imgGlob, distImgPath, resizeOption);
 }
