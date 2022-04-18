@@ -1,12 +1,15 @@
 import Sharp from "sharp";
 import path from "path";
 import fs from "fs";
-import glob from "glob";
-
+import newer from "node-newer-files";
 import { ScaleOption } from "./Option";
 import { bufferImgPath } from "./index";
-const imgExtension = "+(jpg|jpeg|png|gif|svg)";
-const imgExtension_responsive = "+(jpg|jpeg|png|gif)";
+
+const imgExtensionArrayResponsive = ["jpg", "jpeg", "png", "gif"];
+const imgExtensionArray = [...imgExtensionArrayResponsive, "svg"];
+
+const imgExtension = `+(${imgExtensionArray.join("|")})`;
+const imgExtension_responsive = `+(${imgExtensionArray.join("|")})`;
 
 /**
  * SharpライブラリをラップしたStreamを作成する。
@@ -15,10 +18,11 @@ export async function getSharpStream(
   imageDir: string,
   srcImageGlob: string,
   distImgPath: string,
+  extensions: string[],
   resizeOption?: ScaleOption
 ) {
-  const files = glob.sync(srcImageGlob, { cwd: imageDir });
-  return optimize(files, imageDir, distImgPath, resizeOption);
+  const newFiles = newer.getFiles(extensions, imageDir, distImgPath);
+  return optimize(newFiles, imageDir, distImgPath, resizeOption);
 }
 
 const optimize = async (
@@ -61,24 +65,24 @@ const optimize = async (
   return Promise.all(promises);
 };
 
-export async function getImageTask(imageDir: string, scaleOption: ScaleOption) {
+export async function getScalingTask(imageDir: string, scaleOption: ScaleOption) {
   const baseName = path.basename(imageDir);
-  const srcImages = path.join("**/*." + imgExtension);
-  const srcResponsiveImages = path.join("**/*." + imgExtension_responsive);
-
   const distImgPath = path.resolve(
     bufferImgPath,
     baseName + scaleOption.postfix
   );
 
-  let imgGlob = srcImages;
-  let resizeOption;
-  if (scaleOption.scale !== 1.0) {
-    imgGlob = srcResponsiveImages;
-    resizeOption = {
-      scale: scaleOption.scale,
-    };
-  }
+  const isScale = scaleOption.scale !== 1.0;
+  const extensionGlob = isScale ? imgExtension_responsive : imgExtension;
+  const imgGlob = path.join("**/*." + extensionGlob);
+  const resizeOption = isScale ? scaleOption : null;
+  const extensions = isScale ? imgExtensionArrayResponsive : imgExtensionArray;
 
-  return getSharpStream(imageDir, imgGlob, distImgPath, resizeOption);
+  return getSharpStream(
+    imageDir,
+    imgGlob,
+    distImgPath,
+    extensions,
+    resizeOption
+  );
 }

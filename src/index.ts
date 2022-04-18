@@ -1,5 +1,5 @@
 import { initOption, Option } from "./Option";
-import { getImageTask } from "./MinimizeTask";
+import { getScalingTask } from "./MinimizeTask";
 import fse from "fs-extra";
 export const bufferImgPath = "./.imgBuffer/";
 
@@ -19,7 +19,7 @@ export function generateTask(
   return async () => {
     const tasks = [];
     option.scaleOptions.forEach(async (scaleOption) => {
-      const task = getImageTask(srcImageDir, scaleOption);
+      const task = getScalingTask(srcImageDir, scaleOption);
       tasks.push(task);
     });
     await Promise.all(tasks);
