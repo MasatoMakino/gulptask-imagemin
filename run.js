@@ -1,4 +1,4 @@
 "use strict";
-const images = require("./bin").generateTasks("./srcImg/img", "./dist");
-images.optimize();
-images.watchImages();
+const imageTasks = require("./bin").generateTasks("./srcImg/img", "./dist");
+imageTasks.optimize();
+imageTasks.watchImages();

@@ -94,7 +94,7 @@ const optimizeFile = async (
       palette: true,
     });
   }
-  return  {
+  return {
     sharp: await sharpObj.toFile(outputPath),
     outputPath,
     distImgDir,
@@ -122,7 +122,10 @@ export async function getScalingTask(
   );
 }
 
-const getBufferOutputPath = (imageDir: string, scaleOption: ScaleOption): string => {
+const getBufferOutputPath = (
+  imageDir: string,
+  scaleOption: ScaleOption
+): string => {
   const baseName = path.basename(imageDir);
   return path.resolve(bufferImgPath, baseName + scaleOption.postfix);
 };

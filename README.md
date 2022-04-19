@@ -1,11 +1,11 @@
 # gulptask-imagemin
 
-imagemin task for gulp.js
+> imagemin task for gulp.js
 
 [GitHub リポジトリ](https://github.com/MasatoMakino/gulptask-imagemin.git)
 
 [gulp4](https://gulpjs.com/) 用のタスクをモジュール化したものです。
-[gulp-imagemin](https://www.npmjs.com/package/gulp-imagemin)を利用して、画像ファイルの最適化を行います。
+[Sharp](https://sharp.pixelplumbing.com/)を利用して、画像ファイルの最適化を行います。
 
 ## Getting Started
 
@@ -23,14 +23,20 @@ $ npm install https://github.com/MasatoMakino/gulptask-imagemin.git -D
 
 gulpfile.js の中で
 
-```gulpfile.js
-const images = require("gulptask-imagemin").get("画像ソースのディレクトリ", "出力先ディレクトリ", {オプション / 省略可});
+▼gulpfile.js
+```js
+const imageTasks = require("gulptask-imagemin").generateTasks("画像ソースのディレクトリ", "出力先ディレクトリ", {オプション: 省略可});
 ```
 
 のように宣言してタスクモジュールをインポートします。
-この状態で`images`がプライベートタスクになっています。
+`imageTasks`には画像最適化を行う`optimize`タスクと、ファイル更新を監視する`watchImages`タスクの2つが格納されています。
 
-[watch](https://gulpjs.com/docs/en/api/watch)のタスクとしても動作します。
+
+▼gulpfile.js
+```js
+imageTasks.optimize; //画像最適化タスク
+imageTasks.watchImages(); //watchタスク、gulpfileのwatch内で実行する
+```
 
 ## Option
 
