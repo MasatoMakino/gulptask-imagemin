@@ -4,6 +4,32 @@ import fse from "fs-extra";
 export const bufferImgPath = "./.imgBuffer/";
 
 /**
+ * @deprecated
+ * @param srcImageDir
+ * @param distDir
+ * @param option
+ */
+export function get(srcImageDir: string, distDir: string, option: Option) {
+  return generateTask(srcImageDir, distDir, option);
+}
+
+/**
+ * @deprecated
+ * @param srcImageDir
+ * @param distDir
+ * @param option
+ */
+export function generateTask(
+  srcImageDir: string,
+  distDir: string,
+  option: Option
+) {
+  console.warn(
+    "This function is deprecated. Please use 'generateTasks'. この関数は廃止予定です。'generateTasks'関数を使用してください。"
+  );
+  return generateTasks(srcImageDir, distDir, option).optimize;
+}
+/**
  * 画像を複数のスケールにリサイズし、最適化するタスクを生成する
  * @param srcImageDir
  * @param distDir
@@ -27,6 +53,6 @@ export function generateTasks(
       fse.copySync(bufferImgPath, distDir);
       console.log("done : image optimize task");
     },
-    watchImages: getWatchImages(srcImageDir,distDir, option.scaleOptions),
+    watchImages: getWatchImages(srcImageDir, distDir, option.scaleOptions),
   };
 }
