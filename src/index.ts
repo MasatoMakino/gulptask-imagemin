@@ -1,5 +1,5 @@
 import { initOption, Option } from "./Option";
-import { getScalingTask } from "./MinimizeTask";
+import { getScalingTask, getWatchImages } from "./MinimizeTask";
 import fse from "fs-extra";
 export const bufferImgPath = "./.imgBuffer/";
 
@@ -9,21 +9,24 @@ export const bufferImgPath = "./.imgBuffer/";
  * @param distDir
  * @param option
  */
-export function generateTask(
+export function generateTasks(
   srcImageDir: string,
   distDir: string,
   option: Option
 ) {
   option = initOption(option);
 
-  return async () => {
-    const tasks = [];
-    option.scaleOptions.forEach(async (scaleOption) => {
-      const task = getScalingTask(srcImageDir, scaleOption);
-      tasks.push(task);
-    });
-    await Promise.all(tasks);
-    fse.copySync(bufferImgPath, distDir);
-    console.log( "done : image optimize task")
+  return {
+    optimize: async () => {
+      const tasks = [];
+      option.scaleOptions.forEach((scaleOption) => {
+        const task = getScalingTask(srcImageDir, scaleOption);
+        tasks.push(task);
+      });
+      await Promise.all(tasks);
+      fse.copySync(bufferImgPath, distDir);
+      console.log("done : image optimize task");
+    },
+    watchImages: getWatchImages(srcImageDir, option.scaleOptions),
   };
 }
