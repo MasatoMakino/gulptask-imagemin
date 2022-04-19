@@ -1,16 +1,27 @@
+import { Option } from "./Option";
 export declare const bufferImgPath = "./.imgBuffer/";
 /**
- * @deprecated Use generateTask
- * @param imageDir
+ * @deprecated
+ * @param srcImageDir
  * @param distDir
  * @param option
  */
-export declare function get(imageDir: any, distDir: any, option: any): any;
+export declare function get(srcImageDir: string, distDir: string, option: Option): () => Promise<void>;
+/**
+ * @deprecated
+ * @param srcImageDir
+ * @param distDir
+ * @param option
+ */
+export declare function generateTask(srcImageDir: string, distDir: string, option: Option): () => Promise<void>;
 /**
  * 画像を複数のスケールにリサイズし、最適化するタスクを生成する
- * @param imageDir
+ * @param srcImageDir
  * @param distDir
  * @param option
  */
-export declare function generateTask(imageDir: any, distDir: any, option: any): any;
+export declare function generateTasks(srcImageDir: string, distDir: string, option: Option): {
+    optimize: () => Promise<void>;
+    watchImages: () => void;
+};
 //# sourceMappingURL=index.d.ts.map
