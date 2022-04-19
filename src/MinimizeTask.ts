@@ -94,14 +94,18 @@ const optimizeFile = async (
       palette: true,
     });
   }
-  return await sharpObj.toFile(outputPath);
+  return  {
+    sharp: await sharpObj.toFile(outputPath),
+    outputPath,
+    distImgDir,
+  };
 };
 
 export async function getScalingTask(
   imageDir: string,
   scaleOption: ScaleOption
 ) {
-  const distImgPath = getOutputPath(imageDir, scaleOption);
+  const distImgPath = getBufferOutputPath(imageDir, scaleOption);
 
   const isScale = scaleOption.scale !== 1.0;
   const extensionGlob = isScale ? imgExtension_responsive : imgExtension;
@@ -118,29 +122,41 @@ export async function getScalingTask(
   );
 }
 
-const getOutputPath = (imageDir: string, scaleOption: ScaleOption): string => {
+const getBufferOutputPath = (imageDir: string, scaleOption: ScaleOption): string => {
   const baseName = path.basename(imageDir);
   return path.resolve(bufferImgPath, baseName + scaleOption.postfix);
 };
 
-export function getWatchImages(imageDir: string, scaleOptions: ScaleOption[]) {
+export function getWatchImages(
+  imageDir: string,
+  distDir: string,
+  scaleOptions: ScaleOption[]
+) {
   return () => {
     const imgGlob = path.join(imageDir, "**/*." + imgExtension);
     console.log("[gulptask-imagemin] " + imgGlob + " : start watching...");
 
     const onWatch = (filePath: string) => {
       const relativePath = path.relative(imageDir, filePath);
-      // console.log(relativePath);
       scaleOptions.forEach(async (scaleOption) => {
-        const distDir = getOutputPath(imageDir, scaleOption);
+        const bufferDir = getBufferOutputPath(imageDir, scaleOption);
         const result = await optimizeFile(
           relativePath,
           imageDir,
-          distDir,
+          bufferDir,
           scaleOption,
           { useFsReadFile: true }
         );
-        // console.log(result);
+
+        const bufferFilePath = path.relative(bufferImgPath, result.outputPath);
+        const distFilePath = path.join(distDir, bufferFilePath);
+        const copyDir = path.dirname(distFilePath);
+        await fs.promises.mkdir(copyDir, {
+          recursive: true,
+        });
+
+        await fs.promises.copyFile(result.outputPath, distFilePath);
+        console.log("[gulptask-imagemin] optimize image -> " + distFilePath);
       });
     };
 

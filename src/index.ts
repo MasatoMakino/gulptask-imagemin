@@ -27,6 +27,6 @@ export function generateTasks(
       fse.copySync(bufferImgPath, distDir);
       console.log("done : image optimize task");
     },
-    watchImages: getWatchImages(srcImageDir, option.scaleOptions),
+    watchImages: getWatchImages(srcImageDir,distDir, option.scaleOptions),
   };
 }
