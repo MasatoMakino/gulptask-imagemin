@@ -1,37 +1,58 @@
-import { src, dest, series, parallel } from "gulp";
-
-import { initOption } from "./Option";
-import { getImageTask } from "./MinimizeTask";
+import { initOption, Option } from "./Option";
+import { getScalingTask, getWatchImages } from "./MinimizeTask";
+import fse from "fs-extra";
 export const bufferImgPath = "./.imgBuffer/";
 
 /**
- * @deprecated Use generateTask
- * @param imageDir
+ * @deprecated
+ * @param srcImageDir
  * @param distDir
  * @param option
  */
-export function get(imageDir, distDir, option) {
-  return generateTask(imageDir, distDir, option);
+export function get(srcImageDir: string, distDir: string, option: Option) {
+  return generateTask(srcImageDir, distDir, option);
+}
+
+/**
+ * @deprecated
+ * @param srcImageDir
+ * @param distDir
+ * @param option
+ */
+export function generateTask(
+  srcImageDir: string,
+  distDir: string,
+  option: Option
+) {
+  console.warn(
+    "This function is deprecated. Please use 'generateTasks'. この関数は廃止予定です。'generateTasks'関数を使用してください。"
+  );
+  return generateTasks(srcImageDir, distDir, option).optimize;
 }
 /**
  * 画像を複数のスケールにリサイズし、最適化するタスクを生成する
- * @param imageDir
+ * @param srcImageDir
  * @param distDir
  * @param option
  */
-export function generateTask(imageDir, distDir, option) {
+export function generateTasks(
+  srcImageDir: string,
+  distDir: string,
+  option: Option
+) {
   option = initOption(option);
 
-  const tasks = [];
-  option.scaleOptions.forEach((scaleOption) => {
-    tasks.push(getImageTask(imageDir, scaleOption));
-  });
-
-  const copy = () => {
-    return src([bufferImgPath + "**/*"], { base: bufferImgPath }).pipe(
-      dest(distDir)
-    );
+  return {
+    optimize: async () => {
+      const tasks = [];
+      option.scaleOptions.forEach((scaleOption) => {
+        const task = getScalingTask(srcImageDir, scaleOption);
+        tasks.push(task);
+      });
+      await Promise.all(tasks);
+      fse.copySync(bufferImgPath, distDir);
+      console.log("done : image optimize task");
+    },
+    watchImages: getWatchImages(srcImageDir, distDir, option.scaleOptions),
   };
-
-  return series(parallel.apply(null, tasks), copy);
 }

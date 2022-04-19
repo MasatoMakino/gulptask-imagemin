@@ -1,85 +1,169 @@
-import { src, dest } from "gulp";
-
-import through2 from "through2";
-import imagemin from "gulp-imagemin";
-import newer from "gulp-newer";
-import sharp from "sharp";
-import mozjpeg from "imagemin-mozjpeg";
+import Sharp from "sharp";
 import path from "path";
-
+import fs from "fs";
+import { watch } from "chokidar";
+import newer from "node-newer-files";
 import { ScaleOption } from "./Option";
 import { bufferImgPath } from "./index";
-const imgExtension = "+(jpg|jpeg|png|gif|svg)";
-const imgExtension_responsive = "+(jpg|jpeg|png|gif)";
 
-const imageminOption = [
-  imagemin.gifsicle(),
-  mozjpeg(),
-  imagemin.optipng(),
-  imagemin.svgo()
-];
+const imgExtensionArrayResponsive = ["jpg", "jpeg", "png", "gif"];
+const imgExtensionArray = [...imgExtensionArrayResponsive, "svg"];
+
+const imgExtension = `+(${imgExtensionArray.join("|")})`;
+const imgExtension_responsive = `+(${imgExtensionArray.join("|")})`;
 
 /**
- * SharpライブラリをラップしたStreamを作成する。
- * @param srcImageGlob
- * @param distImgPath
- * @param resizeOptions
+ * .imgBufferディレクトリの更新差分を抽出して画像を最適化する
  */
-export function getSharpStream(
+export async function getNewerFileOptimizeTask(
+  imageDir: string,
   srcImageGlob: string,
   distImgPath: string,
-  resizeOptions?
-): WritableStream {
-  const hasResizeOption = resizeOptions !== undefined;
-  const resize = (file, _, cb) => {
-    const image = sharp(file.contents);
-    image
-      .metadata()
-      .then(metadata => {
-        const w = Math.ceil(metadata.width * resizeOptions.scale);
-        return image.resize(w).toBuffer();
-      })
-      .then(data => {
-        file.contents = data;
-        cb(null, file);
-      });
-  };
-
-  let stream = src(srcImageGlob).pipe(newer(distImgPath));
-  if (hasResizeOption) {
-    stream = stream.pipe(through2.obj(resize));
-  }
-  return stream.pipe(imagemin(imageminOption)).pipe(dest(distImgPath));
+  extensions: string[],
+  resizeOption?: ScaleOption
+) {
+  const newFiles = newer.getFiles(extensions, imageDir, distImgPath);
+  return optimizeFiles(newFiles, imageDir, distImgPath, resizeOption);
 }
 
-export function getImageTask(
-  imageDir: string,
-  scaleOption: ScaleOption
-): Function {
-  const baseName = path.basename(imageDir);
-  const srcImages = path.resolve(imageDir, "**/*." + imgExtension);
-  const srcResponsiveImages = path.resolve(
-    imageDir,
-    "**/*." + imgExtension_responsive
-  );
+/**
+ * ファイルリストを最適化する
+ * @param files
+ * @param imageSrcDir
+ * @param distImgPath
+ * @param resizeOption
+ */
+const optimizeFiles = async (
+  files: string[],
+  imageSrcDir: string,
+  distImgPath: string,
+  resizeOption?: ScaleOption
+) => {
+  const promises = [];
+  files.forEach((file) => {
+    promises.push(optimizeFile(file, imageSrcDir, distImgPath, resizeOption));
+  });
 
-  const distImgPath = path.resolve(
-    bufferImgPath,
-    baseName + scaleOption.postfix
-  );
+  return Promise.all(promises);
+};
 
-  let imgGlob = srcImages;
-  let resizeOption;
-  if (scaleOption.scale !== 1.0) {
-    imgGlob = srcResponsiveImages;
-    resizeOption = {
-      scale: scaleOption.scale
-    };
+/**
+ * 指定されたファイルを最適化する
+ * @param file ファイルパス。imageSrcDirからの相対パス
+ * @param imageSrcDir 画像ファイルのソースディレクトリ
+ * @param distImgDir 画像ファイルの出力ディレクトリ bufferImgPathにスケーリング修飾子を追加したもの
+ * @param resizeOption スケーリング修飾子とスケール値のセット
+ * @param option
+ * @param [option.useFsReadFile=false]  fs.readFileを利用するか否か。new Sharp(filePath)はディスクキャッシュが効くため、watchするとファイルが更新されない。
+ */
+const optimizeFile = async (
+  file: string,
+  imageSrcDir: string,
+  distImgDir: string,
+  resizeOption: ScaleOption | undefined,
+  option?: {
+    useFsReadFile?: boolean;
+  }
+) => {
+  const outputPath = path.resolve(distImgDir, file);
+  const dir = path.dirname(outputPath);
+  await fs.promises.mkdir(dir, { recursive: true });
+
+  option ??= {};
+  option.useFsReadFile ??= false;
+  const filePath = path.resolve(imageSrcDir, file);
+  const constructorOption = option.useFsReadFile
+    ? await fs.promises.readFile(filePath)
+    : filePath;
+  const sharpObj = await new Sharp(constructorOption);
+
+  const metadata = await sharpObj.metadata();
+  if (resizeOption) {
+    await sharpObj.resize(Math.ceil(metadata.width * resizeOption.scale));
+  }
+  if (metadata.format === "jpeg") {
+    await sharpObj.toFormat(metadata.format, {
+      mozjpeg: true,
+      quality: 75,
+    });
   }
 
-  // タスクを実行する関数を返す。
-  // 無名関数でラップしないとタスク定義時点で即時実行されてしまうため。
+  if (metadata.format === "png") {
+    await sharpObj.toFormat(metadata.format, {
+      compressionLevel: 8,
+      palette: true,
+    });
+  }
+  return {
+    sharp: await sharpObj.toFile(outputPath),
+    outputPath,
+    distImgDir,
+  };
+};
+
+export async function getScalingTask(
+  imageDir: string,
+  scaleOption: ScaleOption
+) {
+  const distImgPath = getBufferOutputPath(imageDir, scaleOption);
+
+  const isScale = scaleOption.scale !== 1.0;
+  const extensionGlob = isScale ? imgExtension_responsive : imgExtension;
+  const imgGlob = path.join("**/*." + extensionGlob);
+  const resizeOption = isScale ? scaleOption : null;
+  const extensions = isScale ? imgExtensionArrayResponsive : imgExtensionArray;
+
+  return getNewerFileOptimizeTask(
+    imageDir,
+    imgGlob,
+    distImgPath,
+    extensions,
+    resizeOption
+  );
+}
+
+const getBufferOutputPath = (
+  imageDir: string,
+  scaleOption: ScaleOption
+): string => {
+  const baseName = path.basename(imageDir);
+  return path.resolve(bufferImgPath, baseName + scaleOption.postfix);
+};
+
+export function getWatchImages(
+  imageDir: string,
+  distDir: string,
+  scaleOptions: ScaleOption[]
+) {
   return () => {
-    return getSharpStream(imgGlob, distImgPath, resizeOption);
+    const imgGlob = path.join(imageDir, "**/*." + imgExtension);
+    console.log("[gulptask-imagemin] " + imgGlob + " : start watching...");
+
+    const onWatch = (filePath: string) => {
+      const relativePath = path.relative(imageDir, filePath);
+      scaleOptions.forEach(async (scaleOption) => {
+        const bufferDir = getBufferOutputPath(imageDir, scaleOption);
+        const result = await optimizeFile(
+          relativePath,
+          imageDir,
+          bufferDir,
+          scaleOption,
+          { useFsReadFile: true }
+        );
+
+        const bufferFilePath = path.relative(bufferImgPath, result.outputPath);
+        const distFilePath = path.join(distDir, bufferFilePath);
+        const copyDir = path.dirname(distFilePath);
+        await fs.promises.mkdir(copyDir, {
+          recursive: true,
+        });
+
+        await fs.promises.copyFile(result.outputPath, distFilePath);
+        console.log("[gulptask-imagemin] optimize image -> " + distFilePath);
+      });
+    };
+
+    watch(imgGlob, { ignoreInitial: true }).on("add", onWatch);
+    watch(imgGlob).on("change", onWatch);
   };
 }
