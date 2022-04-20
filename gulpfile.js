@@ -25,8 +25,3 @@ exports.imagesCustomScale = require("./bin").generateTasks(
     ],
   }
 ).optimize;
-
-const rimraf = require("rimraf");
-exports.clean = (cb) => {
-  rimraf("./{.imgBuffer,dist}/", cb);
-};
