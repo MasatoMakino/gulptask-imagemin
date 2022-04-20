@@ -4,6 +4,9 @@
   "description": "imagemin task for gulp.js",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
+  "bin": {
+    "gulptask-imagemin": "./bin/CLI.js"
+  },
   "repository": "https://MasatoMakino@github.com/MasatoMakino/gulptask-imagemin.git",
   "author": "MasatoMakino <unagiinu.g@gmail.com>",
   "license": "MIT",
@@ -12,6 +15,7 @@
   ],
   "dependencies": {
     "chokidar": "^3.5.3",
+    "commander": "^9.2.0",
     "fs-extra": "^10.1.0",
     "glob": "^8.0.1",
     "node-newer-files": "github:MasatoMakino/node-newer-files",
@@ -28,6 +32,8 @@
     "build": "npx tsc --project ./tsconfig.json",
     "watch": "npm run build -- -w",
     "run": "gulp images",
-    "testrun": "node run.js"
+    "testNode": "node sample_node_script.js",
+    "testCLI": "npx gulptask-imagemin --srcDir ./srcImg/img --distDir ./dist --scales '',1.0  '_xs',0.5",
+    "watchCLI": "npm run testCLI -- -W"
   }
 }
