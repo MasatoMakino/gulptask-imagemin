@@ -27,8 +27,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: "14"
-          cache: "npm"
-      - run: npm ci
+          cache: "yarn"
+      - run: yarn --frozen-lockfile
       - name: build binary
         run: npx tsc --project ./tsconfig.json
       - name: push dist
