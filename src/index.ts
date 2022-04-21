@@ -1,6 +1,7 @@
-import { initOption, Option } from "./Option";
-import { getScalingTask, getWatchImages } from "./MinimizeTask";
 import fse from "fs-extra";
+import { getScalingTask, getWatchImages } from "./MinimizeTask";
+import { initOption, Option } from "./Option";
+
 export const bufferImgPath = "./.imgBuffer/";
 
 /**

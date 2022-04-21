@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { ScaleOption } from "./Option";
 import { generateTasks } from "./index";
+import { ScaleOption } from "./Option";
 
 const program = new Command();
 
