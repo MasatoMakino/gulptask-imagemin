@@ -13,11 +13,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWatchImages = exports.getScalingTask = exports.getNewerFileOptimizeTask = void 0;
-const sharp_1 = __importDefault(require("sharp"));
-const path_1 = __importDefault(require("path"));
-const fs_1 = __importDefault(require("fs"));
 const chokidar_1 = require("chokidar");
+const fs_1 = __importDefault(require("fs"));
 const node_newer_files_1 = __importDefault(require("node-newer-files"));
+const path_1 = __importDefault(require("path"));
+const sharp_1 = __importDefault(require("sharp"));
 const index_1 = require("./index");
 const imgExtensionArrayResponsive = ["jpg", "jpeg", "png", "gif"];
 const imgExtensionArray = [...imgExtensionArrayResponsive, "svg"];

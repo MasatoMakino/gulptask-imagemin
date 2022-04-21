@@ -13,9 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.generateTasks = exports.generateTask = exports.get = exports.bufferImgPath = void 0;
-const Option_1 = require("./Option");
-const MinimizeTask_1 = require("./MinimizeTask");
 const fs_extra_1 = __importDefault(require("fs-extra"));
+const MinimizeTask_1 = require("./MinimizeTask");
+const Option_1 = require("./Option");
 exports.bufferImgPath = "./.imgBuffer/";
 /**
  * @deprecated
