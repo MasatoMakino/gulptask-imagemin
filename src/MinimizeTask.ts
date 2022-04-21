@@ -1,10 +1,10 @@
-import Sharp from "sharp";
-import path from "path";
-import fs from "fs";
 import { watch } from "chokidar";
+import fs from "fs";
 import newer from "node-newer-files";
-import { ScaleOption } from "./Option";
+import path from "path";
+import Sharp from "sharp";
 import { bufferImgPath } from "./index";
+import { ScaleOption } from "./Option";
 
 const imgExtensionArrayResponsive = ["jpg", "jpeg", "png", "gif"];
 const imgExtensionArray = [...imgExtensionArrayResponsive, "svg"];
