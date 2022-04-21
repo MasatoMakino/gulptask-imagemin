@@ -31,7 +31,8 @@
     "watch": "npm run build -- -w",
     "run": "gulp images",
     "testNode": "node sample_node_script.js",
-    "testCLI": "npx gulptask-imagemin --srcDir ./srcImg/img --distDir ./dist --scales '',1.0  '_xs',0.5",
+    "testCLI": "npx gulptask-imagemin --srcDir ./srcImg/img --distDir ./dist",
+    "testCLIWithScaleOption": "npm run testCLI -- --scales '',1.0/'_xs',0.5/'_m',0.75",
     "watchCLI": "npm run testCLI -- -W"
   }
 }
