@@ -10,10 +10,10 @@ program
   .option("--srcDir <string>", "source image dir")
   .option("--distDir <string>", "dist dir")
   .option(
-    "--scales <scaleOptions>",
-    "scale options 'postfix:string','scale:number' ... 'postfix:string','scale:number'",
+    "--scales [scaleOptions]",
+    "scale options 'postfix:string','scale:number'/'postfix:string','scale:number'",
     (scaleOptions): ScaleOption[] => {
-      const optionArray = scaleOptions.split(/\s+/);
+      const optionArray = scaleOptions.split("/");
       return optionArray.map((val): ScaleOption => {
         const set = val.split(",");
         return {
@@ -29,7 +29,9 @@ program
 const args = program.opts();
 
 (async () => {
-  const tasks = generateTasks(args.srcDir, args.distDir, args.scales);
+  const tasks = generateTasks(args.srcDir, args.distDir, {
+    scaleOptions: args.scales,
+  });
   if (args.watch) {
     tasks.watchImages();
   } else {
