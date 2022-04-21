@@ -16,8 +16,8 @@ const program = new commander_1.Command();
 program
     .option("--srcDir <string>", "source image dir")
     .option("--distDir <string>", "dist dir")
-    .option("--scales <scaleOptions>", "scale options 'postfix:string','scale:number' ... 'postfix:string','scale:number'", (scaleOptions) => {
-    const optionArray = scaleOptions.split(/\s+/);
+    .option("--scales [scaleOptions]", "scale options 'postfix:string','scale:number'/'postfix:string','scale:number'", (scaleOptions) => {
+    const optionArray = scaleOptions.split("/");
     return optionArray.map((val) => {
         const set = val.split(",");
         return {
@@ -30,7 +30,9 @@ program
     .parse(process.argv);
 const args = program.opts();
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    const tasks = (0, index_1.generateTasks)(args.srcDir, args.distDir, args.scales);
+    const tasks = (0, index_1.generateTasks)(args.srcDir, args.distDir, {
+        scaleOptions: args.scales,
+    });
     if (args.watch) {
         tasks.watchImages();
     }
