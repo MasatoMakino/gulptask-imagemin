@@ -14,7 +14,7 @@
 タスクモジュールは
 
 ```bash
-$ npm install https://github.com/MasatoMakino/gulptask-imagemin.git -D
+$ npm install @masatomakino/gulptask-imagemin -D
 ```
 
 でインストールします
@@ -25,7 +25,7 @@ gulpfile.js の中で
 
 ▼gulpfile.js
 ```js
-const imageTasks = require("gulptask-imagemin").generateTasks("画像ソースのディレクトリ", "出力先ディレクトリ", {オプション: 省略可});
+const imageTasks = require("@masatomakino/gulptask-imagemin").generateTasks("画像ソースのディレクトリ", "出力先ディレクトリ", {オプション: 省略可});
 ```
 
 のように宣言してタスクモジュールをインポートします。
