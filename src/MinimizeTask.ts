@@ -1,6 +1,6 @@
 import { watch } from "chokidar";
 import fs from "fs";
-import newer from "node-newer-files";
+import newer from "@masatomakino/newer-files";
 import path from "path";
 import Sharp from "sharp";
 import { bufferImgPath } from "./index";
