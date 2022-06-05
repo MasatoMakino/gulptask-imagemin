@@ -1,13 +1,16 @@
 {
-  "name": "gulptask-imagemin",
+  "name": "@masatomakino/gulptask-imagemin",
   "version": "0.3.1",
   "description": "imagemin task for gulp.js",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
   "bin": {
-    "gulptask-imagemin": "./bin/CLI.js"
+    "gulptask-imagemin": "bin/CLI.js"
   },
-  "repository": "https://MasatoMakino@github.com/MasatoMakino/gulptask-imagemin.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://MasatoMakino@github.com/MasatoMakino/gulptask-imagemin.git"
+  },
   "author": "MasatoMakino <unagiinu.g@gmail.com>",
   "license": "MIT",
   "files": [
@@ -34,5 +37,9 @@
     "testCLI": "npx gulptask-imagemin --srcDir ./srcImg/img --distDir ./dist",
     "testCLIWithScaleOption": "npm run testCLI -- --scales '',1.0/'_xs',0.5/'_m',0.75",
     "watchCLI": "npm run testCLI -- -W"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/MasatoMakino/gulptask-imagemin/issues"
+  },
+  "homepage": "https://github.com/MasatoMakino/gulptask-imagemin#readme"
 }
