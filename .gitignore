@@ -63,3 +63,4 @@ typings/
 .imgBuffer
 dist
 srcImg
+bin
