@@ -36,7 +36,9 @@
     "testNode": "node sample_node_script.js",
     "testCLI": "npx @masatomakino/gulptask-imagemin --srcDir ./srcImg/img --distDir ./dist",
     "testCLIWithScaleOption": "npm run testCLI -- --scales '',1.0/'_xs',0.5/'_m',0.75",
-    "watchCLI": "npm run testCLI -- -W"
+    "watchCLI": "npm run testCLI -- -W",
+    "testLocal": "node bin/CLI.js --srcDir ./srcImg/img --distDir ./dist",
+    "watch:testLocal": "npm run testLocal -- -W"
   },
   "bugs": {
     "url": "https://github.com/MasatoMakino/gulptask-imagemin/issues"

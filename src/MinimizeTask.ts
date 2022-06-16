@@ -3,6 +3,7 @@ import { watch } from "chokidar";
 import fs from "fs";
 import path from "path";
 import Sharp from "sharp";
+import { clearBuffer } from "./ClearBuffer";
 import { bufferImgPath } from "./index";
 import { ScaleOption } from "./Option";
 
@@ -122,7 +123,7 @@ export async function getScalingTask(
   );
 }
 
-const getBufferOutputPath = (
+export const getBufferOutputPath = (
   imageDir: string,
   scaleOption: ScaleOption
 ): string => {
@@ -136,6 +137,8 @@ export function getWatchImages(
   scaleOptions: ScaleOption[]
 ) {
   return () => {
+    clearBuffer(imageDir, scaleOptions);
+
     const imgGlob = path.join(imageDir, "**/*." + imgExtension);
     console.log("[gulptask-imagemin] " + imgGlob + " : start watching...");
 
