@@ -1,4 +1,5 @@
 import fse from "fs-extra";
+import { clearBuffer } from "./ClearBuffer";
 import { getScalingTask, getWatchImages } from "./MinimizeTask";
 import { initOption, Option } from "./Option";
 
@@ -11,7 +12,7 @@ export const bufferImgPath = "./.imgBuffer/";
  * @param option
  */
 export function get(srcImageDir: string, distDir: string, option: Option) {
-  return generateTask(srcImageDir, distDir, option);
+  return generateTasks(srcImageDir, distDir, option);
 }
 
 /**
@@ -45,6 +46,7 @@ export function generateTasks(
 
   return {
     optimize: async () => {
+      await clearBuffer(srcImageDir, option.scaleOptions);
       const tasks = [];
       option.scaleOptions.forEach((scaleOption) => {
         const task = getScalingTask(srcImageDir, scaleOption);
