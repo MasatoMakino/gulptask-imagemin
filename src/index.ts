@@ -11,7 +11,7 @@ export const bufferImgPath = "./.imgBuffer/";
  * @param option
  */
 export function get(srcImageDir: string, distDir: string, option: Option) {
-  return generateTask(srcImageDir, distDir, option);
+  return generateTasks(srcImageDir, distDir, option);
 }
 
 /**
