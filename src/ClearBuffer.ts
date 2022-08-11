@@ -5,6 +5,11 @@ import { bufferImgPath } from "./index";
 import { getBufferOutputPath } from "./MinimizeTask";
 import { ScaleOption } from "./Option";
 
+/**
+ * スケール値が設定されていない画像バッファディレクトリをクリアする
+ * @param srcImageDir
+ * @param scaleOptions
+ */
 export const clearBuffer = async (
   srcImageDir: string,
   scaleOptions: ScaleOption[]

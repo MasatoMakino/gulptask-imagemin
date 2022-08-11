@@ -9,6 +9,7 @@ const program = new Command();
 program
   .option("--srcDir <string>", "source image dir")
   .option("--distDir <string>", "dist dir")
+  .option("--colours <number>", "gif colours")
   .option(
     "--scales [scaleOptions]",
     "scale options 'postfix:string','scale:number'/'postfix:string','scale:number'",
@@ -31,6 +32,7 @@ const args = program.opts();
 (async () => {
   const tasks = generateTasks(args.srcDir, args.distDir, {
     scaleOptions: args.scales,
+    colours:args.colours
   });
   if (args.watch) {
     tasks.watchImages();
