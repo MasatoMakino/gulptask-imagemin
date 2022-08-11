@@ -6,7 +6,7 @@ import { initOption, Option } from "./Option";
 export const bufferImgPath = "./.imgBuffer/";
 
 /**
- * @deprecated
+ * @deprecated use generateTasks()
  * @param srcImageDir
  * @param distDir
  * @param option
@@ -16,7 +16,7 @@ export function get(srcImageDir: string, distDir: string, option: Option) {
 }
 
 /**
- * @deprecated
+ * @deprecated use generateTasks()
  * @param srcImageDir
  * @param distDir
  * @param option
@@ -49,13 +49,13 @@ export function generateTasks(
       await clearBuffer(srcImageDir, option.scaleOptions);
       const tasks = [];
       option.scaleOptions.forEach((scaleOption) => {
-        const task = getScalingTask(srcImageDir, scaleOption);
+        const task = getScalingTask(srcImageDir, option.colours, scaleOption);
         tasks.push(task);
       });
       await Promise.all(tasks);
       fse.copySync(bufferImgPath, distDir);
       console.log("done : image optimize task");
     },
-    watchImages: getWatchImages(srcImageDir, distDir, option.scaleOptions),
+    watchImages: getWatchImages(srcImageDir, distDir, option.colours, option.scaleOptions),
   };
 }

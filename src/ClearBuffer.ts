@@ -1,18 +1,24 @@
 import { rmSync } from "fs";
-import { readdir } from "fs/promises";
+import { readdir,mkdir} from "fs/promises";
 import path from "path";
 import { bufferImgPath } from "./index";
 import { getBufferOutputPath } from "./MinimizeTask";
 import { ScaleOption } from "./Option";
 
+/**
+ * スケール値が設定されていない画像バッファディレクトリをクリアする
+ * @param srcImageDir
+ * @param scaleOptions
+ */
 export const clearBuffer = async (
   srcImageDir: string,
   scaleOptions: ScaleOption[]
 ) => {
-  const bufferDirDirents = await readdir(bufferImgPath, {
+  await mkdir(bufferImgPath, {recursive:true});
+  const bufferDirDirent = await readdir(bufferImgPath, {
     withFileTypes: true,
   });
-  const bufferDirList = bufferDirDirents.filter((dirent) => {
+  const bufferDirList = bufferDirDirent.filter((dirent) => {
     return dirent.isDirectory();
   });
 

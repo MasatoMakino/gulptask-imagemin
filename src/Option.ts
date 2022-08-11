@@ -3,6 +3,11 @@
  */
 export interface Option {
   scaleOptions?: ScaleOption[];
+  /**
+   * gifカラーパレット数
+   * @default 16
+   */
+  colours?:number
 }
 
 /**
@@ -31,6 +36,10 @@ export function initOption(option: Option): Option {
       scale: 0.5,
     },
   ];
+  if( option.colours ){
+    option.colours = parseInt(String(option.colours));
+  }
+  option.colours ??= 16;
 
   return option;
 }

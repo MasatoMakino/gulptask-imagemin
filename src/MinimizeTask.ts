@@ -21,10 +21,11 @@ export async function getNewerFileOptimizeTask(
   srcImageGlob: string,
   distImgPath: string,
   extensions: string[],
+  colours:number,
   resizeOption?: ScaleOption
 ) {
   const newFiles = newer.getFiles(extensions, imageDir, distImgPath);
-  return optimizeFiles(newFiles, imageDir, distImgPath, resizeOption);
+  return optimizeFiles(newFiles, imageDir, distImgPath, colours, resizeOption);
 }
 
 /**
@@ -38,11 +39,12 @@ const optimizeFiles = async (
   files: string[],
   imageSrcDir: string,
   distImgPath: string,
+  colours:number,
   resizeOption?: ScaleOption
 ) => {
   const promises = [];
   files.forEach((file) => {
-    promises.push(optimizeFile(file, imageSrcDir, distImgPath, resizeOption));
+    promises.push(optimizeFile(file, imageSrcDir, distImgPath,colours, resizeOption));
   });
 
   return Promise.all(promises);
@@ -61,6 +63,7 @@ const optimizeFile = async (
   file: string,
   imageSrcDir: string,
   distImgDir: string,
+  colours:number,
   resizeOption: ScaleOption | undefined,
   option?: {
     useFsReadFile?: boolean;
@@ -76,7 +79,7 @@ const optimizeFile = async (
   const constructorOption = option.useFsReadFile
     ? await fs.promises.readFile(filePath)
     : filePath;
-  const sharpObj = await new Sharp(constructorOption);
+  const sharpObj = await new Sharp(constructorOption, {animated:true});
 
   const metadata = await sharpObj.metadata();
   if (resizeOption) {
@@ -95,6 +98,12 @@ const optimizeFile = async (
       palette: true,
     });
   }
+  if( metadata.format === "gif"){
+    await sharpObj.toFormat(metadata.format,{
+      colours
+    })
+  }
+
   return {
     sharp: await sharpObj.toFile(outputPath),
     outputPath,
@@ -104,6 +113,7 @@ const optimizeFile = async (
 
 export async function getScalingTask(
   imageDir: string,
+  colours:number,
   scaleOption: ScaleOption
 ) {
   const distImgPath = getBufferOutputPath(imageDir, scaleOption);
@@ -119,6 +129,7 @@ export async function getScalingTask(
     imgGlob,
     distImgPath,
     extensions,
+    colours,
     resizeOption
   );
 }
@@ -134,6 +145,7 @@ export const getBufferOutputPath = (
 export function getWatchImages(
   imageDir: string,
   distDir: string,
+  colours:number,
   scaleOptions: ScaleOption[]
 ) {
   return () => {
@@ -150,6 +162,7 @@ export function getWatchImages(
           relativePath,
           imageDir,
           bufferDir,
+          colours,
           scaleOption,
           { useFsReadFile: true }
         );
