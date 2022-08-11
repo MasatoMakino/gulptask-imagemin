@@ -6,7 +6,7 @@ import { initOption, Option } from "./Option";
 export const bufferImgPath = "./.imgBuffer/";
 
 /**
- * @deprecated
+ * @deprecated use generateTasks()
  * @param srcImageDir
  * @param distDir
  * @param option
@@ -16,7 +16,7 @@ export function get(srcImageDir: string, distDir: string, option: Option) {
 }
 
 /**
- * @deprecated
+ * @deprecated use generateTasks()
  * @param srcImageDir
  * @param distDir
  * @param option
