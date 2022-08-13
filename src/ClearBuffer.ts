@@ -1,5 +1,5 @@
 import { rmSync } from "fs";
-import { readdir,mkdir} from "fs/promises";
+import { readdir, mkdir } from "fs/promises";
 import path from "path";
 import { bufferImgPath } from "./index";
 import { getBufferOutputPath } from "./MinimizeTask";
@@ -14,7 +14,7 @@ export const clearBuffer = async (
   srcImageDir: string,
   scaleOptions: ScaleOption[]
 ) => {
-  await mkdir(bufferImgPath, {recursive:true});
+  await mkdir(bufferImgPath, { recursive: true });
   const bufferDirDirent = await readdir(bufferImgPath, {
     withFileTypes: true,
   });

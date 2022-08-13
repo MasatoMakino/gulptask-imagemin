@@ -2,8 +2,9 @@ import newer from "@masatomakino/newer-files";
 import { watch } from "chokidar";
 import fs from "fs";
 import path from "path";
-import Sharp from "sharp";
+
 import { clearBuffer } from "./ClearBuffer";
+import { optimizeFile } from "./OptimizeFile";
 import { bufferImgPath } from "./index";
 import { ScaleOption } from "./Option";
 
@@ -21,7 +22,7 @@ export async function getNewerFileOptimizeTask(
   srcImageGlob: string,
   distImgPath: string,
   extensions: string[],
-  colours:number,
+  colours: number,
   resizeOption?: ScaleOption
 ) {
   const newFiles = newer.getFiles(extensions, imageDir, distImgPath);
@@ -33,87 +34,29 @@ export async function getNewerFileOptimizeTask(
  * @param files
  * @param imageSrcDir
  * @param distImgPath
+ * @param colours gif画像のパレット色数
  * @param resizeOption
  */
 const optimizeFiles = async (
   files: string[],
   imageSrcDir: string,
   distImgPath: string,
-  colours:number,
+  colours: number,
   resizeOption?: ScaleOption
 ) => {
   const promises = [];
   files.forEach((file) => {
-    promises.push(optimizeFile(file, imageSrcDir, distImgPath,colours, resizeOption));
+    promises.push(
+      optimizeFile(file, imageSrcDir, distImgPath, colours, resizeOption)
+    );
   });
 
   return Promise.all(promises);
 };
 
-/**
- * 指定されたファイルを最適化する
- * @param file ファイルパス。imageSrcDirからの相対パス
- * @param imageSrcDir 画像ファイルのソースディレクトリ
- * @param distImgDir 画像ファイルの出力ディレクトリ bufferImgPathにスケーリング修飾子を追加したもの
- * @param resizeOption スケーリング修飾子とスケール値のセット
- * @param option
- * @param [option.useFsReadFile=false]  fs.readFileを利用するか否か。new Sharp(filePath)はディスクキャッシュが効くため、watchするとファイルが更新されない。
- */
-const optimizeFile = async (
-  file: string,
-  imageSrcDir: string,
-  distImgDir: string,
-  colours:number,
-  resizeOption: ScaleOption | undefined,
-  option?: {
-    useFsReadFile?: boolean;
-  }
-) => {
-  const outputPath = path.resolve(distImgDir, file);
-  const dir = path.dirname(outputPath);
-  await fs.promises.mkdir(dir, { recursive: true });
-
-  option ??= {};
-  option.useFsReadFile ??= false;
-  const filePath = path.resolve(imageSrcDir, file);
-  const constructorOption = option.useFsReadFile
-    ? await fs.promises.readFile(filePath)
-    : filePath;
-  const sharpObj = await new Sharp(constructorOption, {animated:true});
-
-  const metadata = await sharpObj.metadata();
-  if (resizeOption) {
-    await sharpObj.resize(Math.ceil(metadata.width * resizeOption.scale));
-  }
-  if (metadata.format === "jpeg") {
-    await sharpObj.toFormat(metadata.format, {
-      mozjpeg: true,
-      quality: 75,
-    });
-  }
-
-  if (metadata.format === "png") {
-    await sharpObj.toFormat(metadata.format, {
-      compressionLevel: 8,
-      palette: true,
-    });
-  }
-  if( metadata.format === "gif"){
-    await sharpObj.toFormat(metadata.format,{
-      colours
-    })
-  }
-
-  return {
-    sharp: await sharpObj.toFile(outputPath),
-    outputPath,
-    distImgDir,
-  };
-};
-
 export async function getScalingTask(
   imageDir: string,
-  colours:number,
+  colours: number,
   scaleOption: ScaleOption
 ) {
   const distImgPath = getBufferOutputPath(imageDir, scaleOption);
@@ -145,7 +88,7 @@ export const getBufferOutputPath = (
 export function getWatchImages(
   imageDir: string,
   distDir: string,
-  colours:number,
+  colours: number,
   scaleOptions: ScaleOption[]
 ) {
   return () => {
