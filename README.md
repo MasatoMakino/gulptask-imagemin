@@ -77,7 +77,7 @@ $ npx @masatomakino/gulptask-imagemin --src 画像ソースのディレクトリ
 拡大率はオプションで指定します。
 
 ```bash
---scales 'postfix1',1.0/'postfix2'/0.5
+--scales 'postfix1',1.0/'postfix2',0.5
 ```
 
 オプションは文字列と数値を組み合わせた配列です。1 つのスケールオプションが`'postfix',1.0`のように`,`で区切られています。各オプションは`/`で区切られています。
