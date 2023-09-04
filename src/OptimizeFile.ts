@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
-import Sharp from "sharp";
 import { ScaleOption } from "./Option";
+import sharp from "sharp";
 
 /**
  * 指定されたファイルを最適化して、ファイルに出力する
@@ -24,15 +24,16 @@ export const optimizeFile = async (
     useFsReadFile?: boolean;
   }
 ): Promise<{
-  sharp: void;
+  sharp: sharp.OutputInfo | void;
   outputPath: string;
   distImgDir: string;
 }> => {
   const outputPath = await getOutputPath(file, distImgDir);
-  const sharpObj: Sharp = await getSharpObj(file, imageSrcDir, option);
+  const sharpObj: sharp.Sharp = await getSharpObj(file, imageSrcDir, option);
   const metadata = await sharpObj.metadata();
 
   if (metadata.format === "svg") {
+    // @ts-ignore
     const inputPath = sharpObj.options.input.file;
     return {
       sharp: await fs.promises.copyFile(inputPath, outputPath),
@@ -62,14 +63,14 @@ const getSharpObj = async (
   option?: {
     useFsReadFile?: boolean;
   }
-): Promise<Sharp> => {
+): Promise<sharp.Sharp> => {
   option ??= {};
   option.useFsReadFile ??= false;
   const filePath = path.resolve(imageSrcDir, file);
   const constructorOption = option.useFsReadFile
     ? await fs.promises.readFile(filePath)
     : filePath;
-  return await new Sharp(constructorOption, { animated: true });
+  return sharp(constructorOption, { animated: true });
 };
 
 /**
@@ -93,8 +94,8 @@ const getOutputPath = async (file: string, distImgDir: string) => {
  * @param colours
  */
 const setFormat = async (
-  sharpObj: Sharp,
-  metadata: { width: number; format: any },
+  sharpObj: sharp.Sharp,
+  metadata: sharp.Metadata,
   resizeOption: ScaleOption | undefined,
   colours: number
 ) => {
