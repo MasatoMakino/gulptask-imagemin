@@ -33,6 +33,8 @@
   },
   "scripts": {
     "build": "tsc",
+    "preversion": "git checkout main && git pull && npm ci && npm run build",
+    "postversion": "git add package.json package-lock.json && git checkout -b version/$(git describe --tags --abbrev=0)",
     "watch": "npm run build -- -w",
     "run": "gulp images",
     "testNode": "node sample_node_script.js",
