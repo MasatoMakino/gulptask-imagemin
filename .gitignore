@@ -62,5 +62,4 @@ typings/
 .idea
 .imgBuffer
 dist
-srcImg
 bin
