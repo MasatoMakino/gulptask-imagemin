@@ -32,6 +32,7 @@
     "typescript": "^5.2.2"
   },
   "scripts": {
+    "test": "node ./test/test.js",
     "build": "tsc",
     "preversion": "git checkout main && git pull && npm ci && npm run build",
     "postversion": "git add package.json package-lock.json && git checkout -b version/$(git describe --tags --abbrev=0)",
