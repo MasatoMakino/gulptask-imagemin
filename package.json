@@ -1,6 +1,6 @@
 {
   "name": "@masatomakino/gulptask-imagemin",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "imagemin task for gulp.js",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
