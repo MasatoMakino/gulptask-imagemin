@@ -27,8 +27,8 @@
   "devDependencies": {
     "@types/node": "^20.5.9",
     "husky": "^8.0.3",
-    "prettier": "^2.8.8",
-    "pretty-quick": "^3.1.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.1.1",
     "typescript": "^5.2.2"
   },
   "scripts": {
@@ -50,5 +50,8 @@
   "bugs": {
     "url": "https://github.com/MasatoMakino/gulptask-imagemin/issues"
   },
-  "homepage": "https://github.com/MasatoMakino/gulptask-imagemin#readme"
+  "homepage": "https://github.com/MasatoMakino/gulptask-imagemin#readme",
+  "lint-staged": {
+    "*.{js,css,md}": "prettier --write"
+  }
 }
