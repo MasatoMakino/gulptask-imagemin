@@ -26,7 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
-    "husky": "^8.0.3",
+    "husky": "^9.0.11",
     "lint-staged": "^15.2.0",
     "prettier": "^3.1.1",
     "typescript": "^5.2.2"
@@ -45,7 +45,7 @@
     "testLocal": "node bin/CLI.js --srcDir ./srcImg/img --distDir ./dist",
     "watch:testLocal": "npm run testLocal -- -W",
     "testLocalWithColour": "node bin/CLI.js --srcDir ./srcImg/img --distDir ./dist --colours 8",
-    "prepare": "husky install"
+    "prepare": "husky"
   },
   "bugs": {
     "url": "https://github.com/MasatoMakino/gulptask-imagemin/issues"
