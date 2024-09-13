@@ -30,7 +30,7 @@ exec(
   (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
-      return;
+      process.exit(1); // エラーが発生した場合は不正終了
     }
 
     // dist/imgおよびdist/img_xsディレクトリにファイルが存在することを確認
