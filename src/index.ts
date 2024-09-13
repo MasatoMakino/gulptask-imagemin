@@ -1,7 +1,7 @@
 import fse from "fs-extra";
-import { clearBuffer } from "./ClearBuffer";
-import { getScalingTask, getWatchImages } from "./MinimizeTask";
-import { initOption, Option } from "./Option";
+import { clearBuffer } from "./ClearBuffer.js";
+import { getScalingTask, getWatchImages } from "./MinimizeTask.js";
+import { initOption, Option } from "./Option.js";
 
 export const bufferImgPath = "./.imgBuffer/";
 

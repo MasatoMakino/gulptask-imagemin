@@ -2,6 +2,7 @@
   "name": "@masatomakino/gulptask-imagemin",
   "version": "0.4.1",
   "description": "imagemin task for gulp.js",
+  "type": "module",
   "main": "bin/index.js",
   "types": "bin/index.d.ts",
   "bin": {
@@ -18,7 +19,7 @@
   ],
   "dependencies": {
     "@masatomakino/newer-files": "^0.3.0",
-    "chokidar": "^3.6.0",
+    "chokidar": "^4.0.0",
     "commander": "12.1.0",
     "fs-extra": "^11.1.1",
     "glob": "^11.0.0",
@@ -37,11 +38,6 @@
     "preversion": "git checkout main && git pull && npm ci && npm run build && npm test",
     "postversion": "git add package.json package-lock.json && git checkout -b version/$(git describe --tags --abbrev=0)",
     "watch": "npm run build -- -w",
-    "run": "gulp images",
-    "testNode": "node sample_node_script.js",
-    "testCLI": "npx @masatomakino/gulptask-imagemin --srcDir ./srcImg/img --distDir ./dist",
-    "testCLIWithScaleOption": "npm run testCLI -- --scales '',1.0/'_xs',0.5/'_m',0.75",
-    "watchCLI": "npm run testCLI -- -W",
     "testLocal": "node bin/CLI.js --srcDir ./srcImg/img --distDir ./dist",
     "watch:testLocal": "npm run testLocal -- -W",
     "testLocalWithColour": "node bin/CLI.js --srcDir ./srcImg/img --distDir ./dist --colours 8",

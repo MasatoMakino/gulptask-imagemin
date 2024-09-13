@@ -1,9 +1,9 @@
 import { rmSync } from "fs";
 import { readdir, mkdir } from "fs/promises";
 import path from "path";
-import { bufferImgPath } from "./index";
-import { getBufferOutputPath } from "./MinimizeTask";
-import { ScaleOption } from "./Option";
+import { bufferImgPath } from "./index.js";
+import { getBufferOutputPath } from "./MinimizeTask.js";
+import { ScaleOption } from "./Option.js";
 
 /**
  * スケール値が設定されていない画像バッファディレクトリをクリアする

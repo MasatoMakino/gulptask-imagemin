@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
     "target": "es6",
-    "module": "commonjs",
+    "module": "Node16",
     "declaration": true,
     "declarationMap": true,
     "outDir": "./bin",
     "rootDir": "./src",
 
     /* allow comment */
-    "moduleResolution": "node", //commentable
+    "moduleResolution": "Node16", //commentable
     "esModuleInterop": true
   }
 }

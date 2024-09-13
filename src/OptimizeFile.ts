@@ -1,6 +1,6 @@
 import fs from "fs";
 import path from "path";
-import { ScaleOption } from "./Option";
+import { ScaleOption } from "./Option.js";
 import sharp from "sharp";
 
 /**
