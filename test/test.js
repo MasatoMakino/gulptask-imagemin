@@ -1,9 +1,12 @@
 // test/test.js
-const assert = require("assert");
-const fs = require("fs");
-const path = require("path");
-const { exec } = require("child_process");
-const sharp = require("sharp"); // 画像のメタデータを取得するためのライブラリ
+import assert from "assert";
+import fs from "fs";
+import path from "path";
+import { exec } from "child_process";
+import sharp from "sharp"; // 画像のメタデータを取得するためのライブラリ
+import { fileURLToPath } from "node:url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // テスト用の画像ファイルが出力されるディレクトリのパス
 const distImgDirPath = path.join(__dirname, "../dist/img");
@@ -27,7 +30,7 @@ exec(
   (error, stdout, stderr) => {
     if (error) {
       console.error(`exec error: ${error}`);
-      return;
+      process.exit(1); // エラーが発生した場合は不正終了
     }
 
     // dist/imgおよびdist/img_xsディレクトリにファイルが存在することを確認
@@ -35,7 +38,7 @@ exec(
       fs.readdir(dirPath, (err, files) => {
         if (err) {
           console.error(`read dir error: ${err}`);
-          return;
+          process.exit(1); // エラーが発生した場合は不正終了
         }
 
         // 各ファイルが存在し、かつファイル名がマッチしていることを確認
@@ -59,10 +62,11 @@ exec(
                   } else {
                     // img_xsディレクトリの場合、オリジナルの半分の画素数（端数切り上げ）であることを確認
                     assert(
-                      metadata.width === Math.ceil(originalMetadata.width / 2)
+                      metadata.width === Math.ceil(originalMetadata.width / 2),
                     );
                     assert(
-                      metadata.height === Math.ceil(originalMetadata.height / 2)
+                      metadata.height ===
+                        Math.ceil(originalMetadata.height / 2),
                     );
                   }
                 });
@@ -77,5 +81,5 @@ exec(
         }
       });
     });
-  }
+  },
 );

@@ -1,12 +1,12 @@
-import newer from "@masatomakino/newer-files";
+import { getFiles } from "@masatomakino/newer-files";
 import { watch } from "chokidar";
 import fs from "fs";
 import path from "path";
 
-import { clearBuffer } from "./ClearBuffer";
-import { optimizeFile } from "./OptimizeFile";
-import { bufferImgPath } from "./index";
-import { ScaleOption } from "./Option";
+import { clearBuffer } from "./ClearBuffer.js";
+import { optimizeFile } from "./OptimizeFile.js";
+import { bufferImgPath } from "./index.js";
+import { ScaleOption } from "./Option.js";
 
 const imgExtensionArrayResponsive = ["jpg", "jpeg", "png", "gif"];
 const imgExtensionArray = [...imgExtensionArrayResponsive, "svg"];
@@ -23,9 +23,9 @@ export async function getNewerFileOptimizeTask(
   distImgPath: string,
   extensions: string[],
   colours: number,
-  resizeOption?: ScaleOption
+  resizeOption?: ScaleOption,
 ) {
-  const newFiles = newer.getFiles(extensions, imageDir, distImgPath);
+  const newFiles = getFiles(extensions, imageDir, distImgPath);
   return optimizeFiles(newFiles, imageDir, distImgPath, colours, resizeOption);
 }
 
@@ -42,12 +42,12 @@ const optimizeFiles = async (
   imageSrcDir: string,
   distImgPath: string,
   colours: number,
-  resizeOption?: ScaleOption
+  resizeOption?: ScaleOption,
 ) => {
   const promises = [];
   files.forEach((file) => {
     promises.push(
-      optimizeFile(file, imageSrcDir, distImgPath, colours, resizeOption)
+      optimizeFile(file, imageSrcDir, distImgPath, colours, resizeOption),
     );
   });
 
@@ -57,7 +57,7 @@ const optimizeFiles = async (
 export async function getScalingTask(
   imageDir: string,
   colours: number,
-  scaleOption: ScaleOption
+  scaleOption: ScaleOption,
 ) {
   const distImgPath = getBufferOutputPath(imageDir, scaleOption);
 
@@ -73,13 +73,13 @@ export async function getScalingTask(
     distImgPath,
     extensions,
     colours,
-    resizeOption
+    resizeOption,
   );
 }
 
 export const getBufferOutputPath = (
   imageDir: string,
-  scaleOption: ScaleOption
+  scaleOption: ScaleOption,
 ): string => {
   const baseName = path.basename(imageDir);
   return path.resolve(bufferImgPath, baseName + scaleOption.postfix);
@@ -89,15 +89,20 @@ export function getWatchImages(
   imageDir: string,
   distDir: string,
   colours: number,
-  scaleOptions: ScaleOption[]
+  scaleOptions: ScaleOption[],
 ) {
   return () => {
     clearBuffer(imageDir, scaleOptions);
 
-    const imgGlob = path.join(imageDir, "**/*." + imgExtension);
-    console.log("[gulptask-imagemin] " + imgGlob + " : start watching...");
+    // const imgGlob = path.join(imageDir, "**/*." + imgExtension);
+    console.log("[gulptask-imagemin] " + imageDir + " : start watching...");
 
     const onWatch = (filePath: string) => {
+      const ext = path.extname(filePath); //対象外の拡張子の場合は処理をスキップ
+      if (!imgExtensionArray.includes(ext.slice(1))) {
+        return;
+      }
+
       const relativePath = path.relative(imageDir, filePath);
       scaleOptions.forEach(async (scaleOption) => {
         const bufferDir = getBufferOutputPath(imageDir, scaleOption);
@@ -107,7 +112,7 @@ export function getWatchImages(
           bufferDir,
           colours,
           scaleOption,
-          { useFsReadFile: true }
+          { useFsReadFile: true },
         );
 
         const bufferFilePath = path.relative(bufferImgPath, result.outputPath);
@@ -122,7 +127,7 @@ export function getWatchImages(
       });
     };
 
-    watch(imgGlob, { ignoreInitial: true }).on("add", onWatch);
-    watch(imgGlob).on("change", onWatch);
+    watch(imageDir, { ignoreInitial: true }).on("add", onWatch);
+    watch(imageDir, {}).on("change", onWatch);
   };
 }
