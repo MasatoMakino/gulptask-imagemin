@@ -38,7 +38,7 @@ exec(
       fs.readdir(dirPath, (err, files) => {
         if (err) {
           console.error(`read dir error: ${err}`);
-          return;
+          process.exit(1); // エラーが発生した場合は不正終了
         }
 
         // 各ファイルが存在し、かつファイル名がマッチしていることを確認
