@@ -20,7 +20,7 @@
   "dependencies": {
     "@masatomakino/newer-files": "^0.3.0",
     "chokidar": "^4.0.0",
-    "commander": "14.0.0",
+    "commander": "14.0.1",
     "fs-extra": "^11.1.1",
     "glob": "^11.0.0",
     "sharp": "^0.34.1"
