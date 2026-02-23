@@ -1,3 +1,11 @@
+> [!CAUTION]
+>
+> **This repository has been archived.**
+>
+> This package is deprecated. Use your bundler's built-in image optimization instead.
+>
+> See [#274](https://github.com/MasatoMakino/gulptask-imagemin/issues/274) for details.
+
 # gulptask-imagemin
 
 > imagemin task for gulp.js
